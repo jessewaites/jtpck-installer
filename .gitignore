@@ -1,0 +1,47 @@
+# Binaries
+jtpck-installer
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test artifacts
+*.test
+*.out
+coverage.txt
+
+# Go workspace
+go.work
+go.work.sum
+
+# Go cache
+.gocache/
+*cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Unused assets (keep only rocket.gif)
+blue2.gif
+flying.gif
+ascii-animation*.txt
+gif_frames.txt
+
+# Sample/example files
+sample-*-wrapper.sh
+
+# Local test configs
+.jtpck/
