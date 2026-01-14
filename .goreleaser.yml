@@ -48,7 +48,7 @@ brews:
       owner: jessewaites
       name: homebrew-jtpck
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-    folder: Formula
+    directory: Formula
     homepage: https://github.com/jessewaites/jtpck-installer
     description: CLI tool for configuring OpenTelemetry in Claude Code, Codex, and Gemini CLI
     license: MIT
