@@ -11,13 +11,7 @@ import (
 
 // CodexEnv defines the OTEL environment for Codex.
 func CodexEnv(userID, endpoint string) map[string]string {
-	// Codex uses /v1/traces endpoint
-	codexEndpoint := endpoint
-	if !strings.HasSuffix(endpoint, "/v1/traces") {
-		codexEndpoint = endpoint + "/v1/traces"
-	}
-
-	env := baseOTELEnv(userID, codexEndpoint, "codex")
+	env := baseOTELEnv(userID, endpoint, "codex")
 	env["CODEX_ENABLE_TELEMETRY"] = "1"
 	env["CODEX_OTEL_LOG_USER_PROMPT"] = "false"
 	env["CODEX_OTEL_EXPORT_USAGE_METRICS"] = "true"
@@ -41,12 +35,6 @@ func EnableCodexTelemetry(userID, endpoint string, demoMode bool, logger func(st
 		return nil
 	}
 
-	// Codex uses /v1/traces endpoint
-	codexEndpoint := endpoint
-	if !strings.HasSuffix(endpoint, "/v1/traces") {
-		codexEndpoint = endpoint + "/v1/traces"
-	}
-
 	configPath := CodexConfigPath()
 
 	// Read existing config
@@ -68,7 +56,7 @@ func EnableCodexTelemetry(userID, endpoint string, demoMode bool, logger func(st
 		"log_user_prompt": false,
 		"exporter": map[string]interface{}{
 			"otlp-http": map[string]interface{}{
-				"endpoint": codexEndpoint,
+				"endpoint": endpoint,
 				"protocol": "binary",
 				"headers": map[string]string{
 					"Authorization": fmt.Sprintf("Bearer %s", userID),
