@@ -4,6 +4,7 @@ jtpck-installer
 *.dll
 *.so
 *.dylib
+dist/
 
 # Test artifacts
 *.test
