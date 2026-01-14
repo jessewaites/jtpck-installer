@@ -1,6 +1,7 @@
 package ui
 
 import (
+	_ "embed"
 	"os"
 	"strings"
 	"sync"
@@ -8,6 +9,9 @@ import (
 
 	asciiconverter "github.com/mattparadis/asciiConverter"
 )
+
+//go:embed rocket.gif
+var embeddedGif []byte
 
 var (
 	gifFrames       []string
@@ -17,6 +21,7 @@ var (
 	gifLoadMu       sync.Mutex
 	defaultGifWidth = 80
 	gifSource       = "rocket.gif"
+	gifTempPath     string
 )
 
 // loadGifFrames loads gears2.gif into colored ASCII frames at a target width.
@@ -81,8 +86,28 @@ func chooseGifWidth(termWidth int) int {
 	return w
 }
 
-// ensureGifReady verifies the source GIF exists.
+// ensureGifReady verifies the source GIF exists or creates it from embedded data.
 func ensureGifReady() bool {
-	_, err := os.Stat(gifSource)
-	return err == nil
+	// Check if rocket.gif exists in current directory (dev mode)
+	if _, err := os.Stat(gifSource); err == nil {
+		return true
+	}
+
+	// Create temp file from embedded gif (production mode)
+	if gifTempPath == "" {
+		tmpFile, err := os.CreateTemp("", "jtpck-rocket-*.gif")
+		if err != nil {
+			return false
+		}
+		defer tmpFile.Close()
+
+		if _, err := tmpFile.Write(embeddedGif); err != nil {
+			return false
+		}
+
+		gifTempPath = tmpFile.Name()
+		gifSource = gifTempPath
+	}
+
+	return true
 }
