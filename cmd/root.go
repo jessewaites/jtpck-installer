@@ -47,7 +47,7 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.Flags().BoolVar(&demoMode, "demo", false, "Demo mode (UI preview without file writes)")
+	rootCmd.PersistentFlags().BoolVar(&demoMode, "demo", false, "Demo mode (UI preview without file writes)")
 	rootCmd.Version = version
 }
 
@@ -128,6 +128,7 @@ func runSetup(cmd *cobra.Command, args []string) {
 	appEnvs := config.AppEnvs(userID, endpoint)
 
 	// Add Claude Code action
+	fmt.Println("Enabling Claude Code telemetry")
 	actions = append(actions, "Enabled Claude Code telemetry (wrapper script)")
 
 	// Configure Codex telemetry config file (respects demo mode)
