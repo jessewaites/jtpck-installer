@@ -8,14 +8,16 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
-// CodexEnv defines the OTEL environment for Codex.
+// CodexEnv defines environment variables for the Codex wrapper.
+// Note: Codex reads OTEL config from ~/.codex/config.toml, not env vars.
+// We only set Codex-specific env vars here; OTEL settings are in config.toml.
 func CodexEnv(userID, endpoint string) map[string]string {
-	env := baseOTELEnv(userID, endpoint, "codex")
-	env["CODEX_ENABLE_TELEMETRY"] = "1"
-	env["CODEX_OTEL_LOG_USER_PROMPT"] = "false"
-	env["CODEX_OTEL_EXPORT_USAGE_METRICS"] = "true"
-	env["CODEX_OTEL_INCLUDE_TOKEN_COUNTS"] = "true"
-	return env
+	return map[string]string{
+		"CODEX_ENABLE_TELEMETRY":          "1",
+		"CODEX_OTEL_LOG_USER_PROMPT":      "false",
+		"CODEX_OTEL_EXPORT_USAGE_METRICS": "true",
+		"CODEX_OTEL_INCLUDE_TOKEN_COUNTS": "true",
+	}
 }
 
 // CodexConfigPath returns the path to Codex config.toml
@@ -49,13 +51,26 @@ func EnableCodexTelemetry(userID, endpoint string, demoMode bool, logger func(st
 		config = make(map[string]interface{})
 	}
 
-	// Create [otel] section with otlp-http exporter
+	// Codex needs both logs and traces endpoints
+	logsEndpoint := endpoint + "/v1/logs"
+	tracesEndpoint := endpoint + "/v1/traces"
+
+	// Create [otel] section with both log and trace exporters
 	otel := map[string]interface{}{
 		"environment":     "prod",
 		"log_user_prompt": false,
 		"exporter": map[string]interface{}{
 			"otlp-http": map[string]interface{}{
-				"endpoint": endpoint,
+				"endpoint": logsEndpoint,
+				"protocol": "binary",
+				"headers": map[string]string{
+					"Authorization": fmt.Sprintf("Bearer %s", userID),
+				},
+			},
+		},
+		"trace_exporter": map[string]interface{}{
+			"otlp-http": map[string]interface{}{
+				"endpoint": tracesEndpoint,
 				"protocol": "binary",
 				"headers": map[string]string{
 					"Authorization": fmt.Sprintf("Bearer %s", userID),
